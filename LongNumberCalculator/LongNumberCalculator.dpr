@@ -8,8 +8,7 @@ uses
   LongArithmetic in '..\Units\LongArithmetic.pas';
 
 Var
-  Num1: TNumberAndSign;
-  Num2: TNumber;
+  Num1, Num2: TNumberAndSign;
   Operation : String;
   NS: Byte;
   flag: boolean;
@@ -73,8 +72,7 @@ Begin
 
   //Entering the first number (it is initially positive)
   //(further this number will store the result of operations)
-  Num1.Number:= InputNum(NS);
-  Num1.isPositive:= True;
+  Num1:= InputNum(NS);
 
   //Do operations until '!'
   repeat
@@ -89,10 +87,7 @@ Begin
       if Operation = '+' then
       begin
         Num2:= InputNum(NS);
-        if Num1.isPositive then
-          Num1.Number:= NumbersSum(Num1.Number, Num2, NS)
-        else
-          Num1:= NumbersDifference(Num2, Num1.Number, NS);
+        Num1:= NumbersSum(Num1, Num2, NS)
       end
 
       //If the first number is positive, then subtract the second from the first.
@@ -100,49 +95,46 @@ Begin
       else if Operation = '-' then
       begin
         Num2:= InputNum(NS);
-        if Num1.isPositive then
-          Num1:= NumbersDifference(Num1.Number, Num2, NS)
-        else
-          Num1.Number:= NumbersSum(Num1.Number, Num2, NS);
+        Num1:= NumbersDifference(Num1, Num2, NS)
       end
 
       //Multiplying two numbers
       else if Operation = '*' then
       begin
         Num2:= InputNum(NS);
-        Num1.Number:= NumbersProduct(Num1.Number, Num2, NS);
+        Num1:= NumbersProduct(Num1, Num2, NS);
       end
 
       //Find the integer quotient after division (check not to divide by 0)
       else if Operation = 'div' then
       begin
         Num2:= InputNum(NS);
-        if Num2[High(Num2)] = 0 then
+        if Num2.Number[High(Num2.Number)] = 0 then
         begin
           flag:= True;
           Writeln('Cant divide by zero! Enter operator and number again');
         end
         else
-          Num1.Number:= NumbersDivision(Num1.Number, Num2, NS).Quotient;
+          Num1:= NumbersDivision(Num1, Num2, NS).Quotient;
       end
 
       //Find the remainder after division (check not to divide by 0)
       else if Operation = 'mod' then
       begin
         Num2:= InputNum(NS);
-        if Num2[High(Num2)] = 0 then
+        if Num2.Number[High(Num2.Number)] = 0 then
         begin
           flag:= True;
           Writeln('Cant divide by zero! Enter operator and number again');
         end
         else
-          Num1.Number:= NumbersDivision(Num1.Number, Num2, NS).Remainder;
+          Num1:= NumbersDivision(Num1, Num2, NS).Remainder;
       end
 
       //Write out the current result
       else if Operation = '=' then
       begin
-        OutputNum(Num1.Number, Num1.isPositive);
+        OutputNum(Num1);
         Writeln;
       end
 
