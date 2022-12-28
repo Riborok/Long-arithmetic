@@ -80,6 +80,7 @@ Begin
     //Cycle with postcondition for entering correct data.
     repeat
       Readln(Operation);
+      Operation:= AnsiLowerCase(Operation);
       flag:= False;
 
       //If the first number is positive, then add the two numbers.
@@ -115,7 +116,7 @@ Begin
           Writeln('Cant divide by zero! Enter operator and number again');
         end
         else
-          Num1:= NumbersDivision(Num1, Num2, NS).Quotient;
+          Num1:= Div_(Num1, Num2, NS);
       end
 
       //Find the remainder after division (check not to divide by 0)
@@ -128,7 +129,7 @@ Begin
           Writeln('Cant divide by zero! Enter operator and number again');
         end
         else
-          Num1:= NumbersDivision(Num1, Num2, NS).Remainder;
+          Num1:= Mod_(Num1, Num2, NS);
       end
 
       //Write out the current result

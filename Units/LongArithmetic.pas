@@ -18,7 +18,7 @@ Type
     isPositive: Boolean;
   end;
   TDivision = record
-    Quotient, Remainder :TNumberAndSign;
+    Quotient, Remainder :TNumber;
   end;
   //TNumber - type for long numbers
   //TNumberAndSign - the type that stores a number and its sign as a boolean variable
@@ -46,9 +46,13 @@ Function NumbersDifference(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumb
 //Function calculates the product of two numbers in the number system NS
 Function NumbersProduct(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 
-//Function calculates quotient and remainder after division two numbers in the number system NS
+//Function calculates the quotient after dividing two numbers (the remainder is discarded)
 //Division by zero is not provided in the unit!
-Function NumbersDivision(Dividend, Divider: TNumberAndSign; NS: Byte): TDivision;
+Function Div_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+
+//Function calculates the remainder after dividing two numbers
+//Division by zero is not provided in the unit!
+Function Mod_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 
 implementation
 
@@ -400,8 +404,8 @@ end;
 
 
 
-//Function calculates the product of two numbers in the number system NS
-Function NumbersProduct(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+//Function finds FirstMultiplier * SecondMultiplier
+Function Multiplication(FirstMultiplier, SecondMultiplier: TNumber; NS: Byte): TNumber;
 var
   IntermediateCalc : TNumber;
   i, j, PosElement: LongInt;
@@ -415,19 +419,19 @@ var
 begin
 
   //Set the lengths
-  SetLength(IntermediateCalc, length(FirstNum.Number)+length(SecondNum.Number));
-  SetLength(Result.Number, length(FirstNum.Number)+length(SecondNum.Number));
+  SetLength(IntermediateCalc, length(FirstMultiplier)+length(SecondMultiplier));
+  SetLength(Result, length(FirstMultiplier)+length(SecondMultiplier));
 
   //Resetting the answer
-  FillChar(Result.Number, SizeOf(Result.Number), 0);
+  FillChar(Result, SizeOf(Result), 0);
 
   //Reset carry
   CarryProd:= 0;
 
   //Multiply the digits of the first number by the second number
-  for i := Low(SecondNum.Number) to High(SecondNum.Number) do
+  for i := Low(SecondMultiplier) to High(SecondMultiplier) do
   begin
-    for j := Low(FirstNum.Number) to High(FirstNum.Number) do
+    for j := Low(FirstMultiplier) to High(FirstMultiplier) do
     begin
 
       //Ñalculate at what position in the multiplication the element now
@@ -435,7 +439,7 @@ begin
 
       //Starting to multiply the last digits of the numbers (in the mirrored view it is first)
       //and add the carry (if there is).
-      DigigtsProd:= FirstNum.Number[j] * SecondNum.Number[i] + CarryProd;
+      DigigtsProd:= FirstMultiplier[j] * SecondMultiplier[i] + CarryProd;
 
       //The integer part of dividing by NS is the carry that will go to the next element
       CarryProd:= DigigtsProd div NS;
@@ -457,20 +461,29 @@ begin
     end;
 
     //Add the current answer with the intermediate calculation (starting with i using the column multiplication method)
-    Result.Number:= Plus(Result.Number, IntermediateCalc, i, NS);
+    Result:= Plus(Result, IntermediateCalc, i, NS);
   end;
 
   //If a digit is inserted after PosElement, increase PosElement
-  if Result.Number[PosElement+1] > 0 then
+  if Result[PosElement+1] > 0 then
     PosElement:= PosElement + 1;
 
   //If the product is 0, then the length will be 1.
-  if Result.Number[PosElement] = 0 then
-    SetLength(Result.Number, 1)
+  if Result[PosElement] = 0 then
+    SetLength(Result, 1)
 
   //Else set the calculated length for Result
   else
-  SetLength(Result.Number, PosElement+1);
+  SetLength(Result, PosElement+1);
+
+end;
+
+//Function calculates the product of two numbers in the number system NS
+Function NumbersProduct(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+begin
+
+  //Finding the product of two numbers
+  Result.Number:= Multiplication(FirstNum.Number, SecondNum.Number, NS);
 
   //Determine the sign. If the answer is 0, then the sign will be a plus
   if Result.Number[High(Result.Number)] = 0 then
@@ -481,9 +494,9 @@ end;
 
 
 
-//Function calculates quotient and remainder after division two numbers in the number system NS
+//Function finds Dividend / Subtracted (quotient and remainder)
 //Division by zero is not provided in the unit!
-Function NumbersDivision(Dividend, Divider: TNumberAndSign; NS: Byte): TDivision;
+Function Division(Dividend, Divider: TNumber; NS: Byte): TDivision;
 var
   CurrElInQuotient, CurrPosInDividend, i: LongInt;
   ResultDiv : Byte;
@@ -494,20 +507,20 @@ var
 begin
 
   //Set approximate length for Quotient
-  SetLength(Result.Quotient.Number, length(Dividend.Number));
+  SetLength(Result.Quotient, length(Dividend));
 
   //Initialize the variables (considering that they are written in mirrored view)
   CurrElInQuotient:= -1; //-1 since at the beginning of the cycle will add 1
-  CurrPosInDividend:= High(Dividend.Number) - High(Divider.Number) + 1; //+1 since at the beginning of the cycle will decrease by 1
+  CurrPosInDividend:= High(Dividend) - High(Divider) + 1; //+1 since at the beginning of the cycle will decrease by 1
 
   //In the first iteration, the part of the dividend must be greater than Divider
-  if not PartFirstNumIsGreater(Dividend.Number, Divider.Number, CurrPosInDividend - 1) then
+  if not PartFirstNumIsGreater(Dividend, Divider, CurrPosInDividend - 1) then
     CurrPosInDividend:= CurrPosInDividend - 1;
 
   //Result check: numerator remainder must be < denominator
-  while (Length(Dividend.Number) > Length(Divider.Number)) or
-        ((Length(Dividend.Number) = Length(Divider.Number))
-        and PartFirstNumIsGreater(Dividend.Number, Divider.Number, Low(Dividend.Number))) do
+  while (Length(Dividend) > Length(Divider)) or
+        ((Length(Dividend) = Length(Divider))
+        and PartFirstNumIsGreater(Dividend, Divider, Low(Dividend))) do
   begin
 
     //Reduce CurrPosInDividend for the new iteration take out the next digit
@@ -518,22 +531,22 @@ begin
     ResultDiv:= 0;
 
     //If the current position in the dividend is the last element and that last element is 0, decrease the length by one
-    if (CurrPosInDividend = High(Dividend.Number)) and (Dividend.Number[High(Dividend.Number)] = 0) then
-      SetLength(Dividend.Number, length(Dividend.Number)-1)
+    if (CurrPosInDividend = High(Dividend)) and (Dividend[High(Dividend)] = 0) then
+      SetLength(Dividend, length(Dividend)-1)
 
     //Else while the part of the dividend is greater than the divisor, find the result of the division
     else
-      while (Length(Dividend.Number) - CurrPosInDividend > Length(Divider.Number)) or
-            ((Length(Dividend.Number) - CurrPosInDividend = Length(Divider.Number))
-            and PartFirstNumIsGreater(Dividend.Number, Divider.Number, CurrPosInDividend)) do
+      while (Length(Dividend) - CurrPosInDividend > Length(Divider)) or
+            ((Length(Dividend) - CurrPosInDividend = Length(Divider))
+            and PartFirstNumIsGreater(Dividend, Divider, CurrPosInDividend)) do
       begin
         //Subtract find the result
-        Dividend.Number:= Minus(Dividend.Number, Divider.Number, CurrPosInDividend, NS);
+        Dividend:= Minus(Dividend, Divider, CurrPosInDividend, NS);
         ResultDiv:= ResultDiv + 1;
       end;
 
     //Write the result of the current element in quotient
-    Result.Quotient.Number[CurrElInQuotient]:= ResultDiv;
+    Result.Quotient[CurrElInQuotient]:= ResultDiv;
   end;
 
   //Ñount the final length of the quotient (ñonsidering division method)
@@ -544,33 +557,60 @@ begin
     CurrElInQuotient:= 1;
 
   //Set the length
-  SetLength(Result.Quotient.Number, CurrElInQuotient);
+  SetLength(Result.Quotient, CurrElInQuotient);
 
   //Since in the division method the answer is written in the normal form, mirror it
-  for i := Low(Result.Quotient.Number) to Length(Result.Quotient.Number) div 2 - 1 do
+  for i := Low(Result.Quotient) to Length(Result.Quotient) div 2 - 1 do
   begin
-    Result.Quotient.Number[i]:= Result.Quotient.Number[i] xor Result.Quotient.Number[High(Result.Quotient.Number) - i];
-    Result.Quotient.Number[High(Result.Quotient.Number) - i]:= Result.Quotient.Number[i] xor Result.Quotient.Number[High(Result.Quotient.Number) - i];
-    Result.Quotient.Number[i]:= Result.Quotient.Number[i] xor Result.Quotient.Number[High(Result.Quotient.Number) - i];
+    Result.Quotient[i]:= Result.Quotient[i] xor Result.Quotient[High(Result.Quotient) - i];
+    Result.Quotient[High(Result.Quotient) - i]:= Result.Quotient[i] xor Result.Quotient[High(Result.Quotient) - i];
+    Result.Quotient[i]:= Result.Quotient[i] xor Result.Quotient[High(Result.Quotient) - i];
   end;
 
   //Return the remainder
-  Result.Remainder.Number:= Dividend.Number;
+  Result.Remainder:= Dividend;
 
-  {Determine the signs}
+end;
 
-  //If the answer is 0, then the sign will be a plus
-  if Result.Quotient.Number[High(Result.Quotient.Number)] = 0 then
-    Result.Quotient.isPositive:= True
+//Function calculates the quotient after dividing two numbers (the remainder is discarded)
+//Division by zero is not provided in the unit!
+Function Div_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+begin
+
+  //Finding the quotient after the remainder
+  Result.Number:= Division(FirstNum.Number, SecondNum.Number, NS).Quotient;
+
+  //Determine the signs. If the answer is 0, then the sign will be a plus
+  if Result.Number[High(Result.Number)] = 0 then
+    Result.isPositive:= True
   else
-    Result.Quotient.isPositive:= not (Dividend.isPositive xor Divider.isPositive);
+    Result.isPositive:= not (FirstNum.isPositive xor SecondNum.isPositive);
 
-  //If the answer is 0, then the sign will be a plus
-  if Result.Remainder.Number[High(Result.Remainder.Number)] = 0 then
-    Result.Remainder.isPositive:= True
+end;
+
+//Function calculates the remainder after dividing two numbers
+//Division by zero is not provided in the unit!
+Function Mod_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+begin
+
+  //Ñheck: number1 mod number2 will be equal to some remainder if number1 is greater than number2
+  if (Length(FirstNum.Number) > Length(SecondNum.Number)) or
+      ((Length(FirstNum.Number) = Length(SecondNum.Number))
+      and PartFirstNumIsGreater(FirstNum.Number, SecondNum.Number, Low(FirstNum.Number))) then
+  begin
+    //Finding the remainder after the remainder
+    Result.Number:= Division(FirstNum.Number, SecondNum.Number, NS).Remainder;
+
+    //Determine the signs. If the answer is 0, then the sign will be a plus
+    if Result.Number[High(Result.Number)] = 0 then
+      Result.isPositive:= True
+    else
+      Result.isPositive:= not (FirstNum.isPositive xor SecondNum.isPositive);
+  end
+
+  //Else the result will be number1 (value and sign)
   else
-    Result.Remainder.isPositive:= not (Dividend.isPositive xor Divider.isPositive);
-
+    Result:= FirstNum;
 end;
 
 
