@@ -49,11 +49,11 @@ Function NumbersProduct(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberA
 
 //Function calculates the quotient after dividing two numbers (the remainder is discarded)
 //Division by zero is not provided in the unit!
-Function Div_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+Function NumbersDiv(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 
 //Function calculates the remainder after dividing two numbers
 //Division by zero is not provided in the unit!
-Function Mod_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+Function NumbersMod(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 
 //Function converts a number from OldNS to NewNS
 Function NSConvert(Number: TNumber; OldNS, NewNS: Byte): TNumber;
@@ -511,8 +511,10 @@ begin
 
   //Else set the calculated length for Result
   else
-  SetLength(Result, PosElement+1);
+    SetLength(Result, PosElement+1);
 
+  //Delete the used array
+  SetLength(IntermediateCalc, 0);
 end;
 
 //Function calculates the product of two numbers in the number system NS
@@ -614,7 +616,7 @@ end;
 
 //Function calculates the quotient after dividing two numbers (the remainder is discarded)
 //Division by zero is not provided in the unit!
-Function Div_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+Function NumbersDiv(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 begin
 
   //Finding the quotient after the remainder
@@ -630,7 +632,7 @@ end;
 
 //Function calculates the remainder after dividing two numbers
 //Division by zero is not provided in the unit!
-Function Mod_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
+Function NumbersMod(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 begin
 
   //Ñheck: number1 mod number2 will be equal to some remainder if number1 is greater than number2
@@ -657,7 +659,7 @@ end;
 
 
 //Function converts using Gorner's scheme translate the simple part (from several symbols of the old number system to one symbol in the new)
-Function GornerConver(Number: TNumber; OldNS: Byte): SmallInt;
+Function GornerConvert(Number: TNumber; OldNS: Byte): SmallInt;
 var
   OldNSPow: Word;
   i: LongInt;
@@ -762,8 +764,9 @@ begin
       //Dividing the numbers
       ResDivision:= Division(Number, NewNSArray, OldNS);
 
-      //Write the remainder to the result
-      Result[i]:= GornerConver(ResDivision.Remainder, OldNS);
+      //Write the remainder to the result. The number is still represented in the old number system (using division,
+      //the program is divided into separate elements), so convert it to the new system using Gorner's scheme
+      Result[i]:= GornerConvert(ResDivision.Remainder, OldNS);
 
       //Assign a residual value
       Number:= ResDivision.Quotient;
@@ -772,13 +775,18 @@ begin
       i:= i + 1;
     end;
 
-    //At the end (when Number < NewNSArray), the remainder will be the last value of the number
-    Result[i]:= GornerConver(Number, OldNS);
+    //When Number < NewNSArray, the remainder of a number will be the last value of the number. Convert it to the new system using Gorner's scheme
+    Result[i]:= GornerConvert(Number, OldNS);
 
   end;
 
   //Set the length
   SetLength(Result, i+1);
+
+  //Delete the used arrays
+  SetLength(NewNSArray, 0);
+  SetLength(ResDivision.Quotient, 0);
+  SetLength(ResDivision.Remainder, 0);
 end;
 
 
