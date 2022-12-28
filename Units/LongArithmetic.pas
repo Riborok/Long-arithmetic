@@ -30,8 +30,9 @@ Const
 
 
 
-
 //Function to input a number in the number system NS (the number is written mirrored)
+//NS is the number system in which the result should be. If the number is not written in NS,
+//then enter $(the number system in which the number is written), then a space and the number itself
 Function InputNum(NS: Byte): TNumberAndSign;
 
 //Function to output a number (mirroring back)
@@ -54,16 +55,24 @@ Function Div_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 //Division by zero is not provided in the unit!
 Function Mod_(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 
+//Function converts a number from OldNS to NewNS
+Function NSConvert(Number: TNumber; OldNS, NewNS: Byte): TNumber;
+
 implementation
 
 //Function to input a number in the number system NS (the number is written mirrored)
+//NS is the number system in which the result should be. If the number is not written in NS,
+//then enter $(the number system in which the number is written), then a space and the number itself
 Function InputNum(NS: Byte): TNumberAndSign;
 var
-  i, Len: LongInt;
+  NumberNS: byte;
+  i, Len, ErrorCode: LongInt;
   str: string;
   IsCorrect: boolean;
+  //NumberNS - number system of a number
   //i - cycle counter
   //Len - number length
+  //ErrorCode - is there an error in the val
   //Str - number in string form
   //IsCorrect - flag to confirm the correctness of entering numbers
 begin
@@ -71,11 +80,35 @@ begin
   //Cycle with postcondition for entering correct data.
   Repeat
 
-    //Initialize the IsCorrect
+    //Initialize the variables
     IsCorrect:= True;
+    NumberNS:= NS;
 
     //Read the entered number and check for correctness.
     Readln(str);
+
+    //Checking for the presence of $. If there is, it means that the number is not written in NS
+    if str[1] = '$' then
+    begin
+
+      //Valid number systems have 2 or 1 digits (beginning with the second sybmols, because the first has a $)
+      i:= 3;
+      repeat
+        i:= i - 1;
+        //Attempt to write the selected string to a NumberNS
+        val(Copy(str, 2, i), NumberNS, ErrorCode);
+      until (i = 1) or (ErrorCode = 0);
+
+      //Checking for the correctness of entering a NumberNS. If correct, remove these symbols from the string,
+      //there must be a space in i+2 (because i is the length of the NumberNS and $ is stored in the 1st element)
+      if (ErrorCode = 0) and (str[i+2] = ' ') then
+        Delete(str, 1, i+2)
+      else
+      begin
+        Writeln('Actions with $ are incorrectly written');
+        isCorrect:= False;
+      end;
+    end;
 
     //Find length of the first number
     Len:= length(str);
@@ -115,7 +148,7 @@ begin
 
         //Checking for correct input in the number system
         //Num[i] will be <0 if the symbol is not in NSAlphabet
-        if (Result.Number[i] < 0) or (Result.Number[i] >= NS) then
+        if (Result.Number[i] < 0) or (Result.Number[i] >= NumberNS) then
         begin
           Writeln('Wrong input of number! Namely, wrong input of symbols! See available symbols above! Try again');
           IsCorrect:= False;
@@ -128,6 +161,10 @@ begin
     end;
 
   Until IsCorrect;
+
+  //Checking for a mismatch between NS and NumberNS. If there is, we translate the number from NumberNS to NS
+  if NS <> NumberNS then
+    Result.Number:= NSConvert(Result.Number, NumberNS, NS);
 
 end;
 
@@ -423,7 +460,7 @@ begin
   SetLength(Result, length(FirstMultiplier)+length(SecondMultiplier));
 
   //Resetting the answer
-  FillChar(Result, SizeOf(Result), 0);
+  FillChar(Result[0], SizeOf(Result[0]) * length(Result), 0);
 
   //Reset carry
   CarryProd:= 0;
@@ -508,6 +545,9 @@ begin
 
   //Set approximate length for Quotient
   SetLength(Result.Quotient, length(Dividend));
+
+  //Resetting the answer
+  FillChar(Result.Quotient[0], SizeOf(Result.Quotient[0]) * length(Result.Quotient), 0);
 
   //Initialize the variables (considering that they are written in mirrored view)
   CurrElInQuotient:= -1; //-1 since at the beginning of the cycle will add 1
@@ -611,6 +651,134 @@ begin
   //Else the result will be number1 (value and sign)
   else
     Result:= FirstNum;
+
+end;
+
+
+
+//Function converts using Gorner's scheme translate the simple part (from several symbols of the old number system to one symbol in the new)
+Function GornerConver(Number: TNumber; OldNS: Byte): SmallInt;
+var
+  OldNSPow: Word;
+  i: LongInt;
+  //OldNSPow - power of the old number system
+  //i - cycle counter
+begin
+
+  //Initializing the variables
+  Result:= 0;
+  OldNSPow:= 1;
+
+  //Conver according to the Gorner's scheme
+  for i := Low(Number) to High(Number) do
+  begin
+    Result:= Result + Number[i]*OldNSPow;
+    OldNSPow:= OldNSPow * OldNS;
+  end;
+
+end;
+
+//Function converts a number from OldNS to NewNS
+Function NSConvert(Number: TNumber; OldNS, NewNS: Byte): TNumber;
+Var
+  NewNSArray: TNumber;
+  ResDivision : TDivision;
+  i: LongInt;
+  //NewNSArray - the value of the NewNS, converted into the number system OldNS and written as an array
+  //ResDivision - result of division (quotient and remainder) of a number by a NewNSArray
+  //i - cycle counter
+begin
+
+  {Note! When translating from one number system to another, the result is written in mirror form}
+
+  //Check which is more: old or new (because the converts is slightly different)
+  if NewNS < OldNS then
+  begin
+
+    //Set array NewNSArray
+    SetLength(NewNSArray, 1);
+    NewNSArray[0]:= NewNS;
+
+    //Setting the maximum lengths of arrays
+    SetLength(Result, length(Number)*6);
+
+    //Convert number from OldNS to NewNS
+    i:= Low(Result);
+    while (Length(Number) > Length(NewNSArray)) or ((Length(Number) = Length(NewNSArray)) and PartFirstNumIsGreater(Number, NewNSArray, Low(Number))) do
+    begin
+
+      //Dividing the numbers
+      ResDivision:= Division(Number, NewNSArray, OldNS);
+
+      //Write the remainder to the result
+      Result[i]:= ResDivision.Remainder[0];
+
+      //Assign a residual value
+      Number:= ResDivision.Quotient;
+
+      //Modernize i
+      i:= i + 1;
+    end;
+
+    //If initially the number is less than NewNSArray, then the result will be the initial number.
+    if i = 0 then
+    begin
+      i:= High(Number);
+      Result:= Number;
+    end
+
+    //At the end (when Number < NewNSArray), the remainder will be the last value of the number
+    else
+      Result[i]:= Number[0];
+
+  end
+  else
+  begin
+
+    //Setting the maximum lengths of arrays
+    SetLength(NewNSArray, 6);
+
+    //Converting the value of the NewNS to the number system OldNS
+    i:= Low(NewNSArray);
+    while NewNS >= OldNS do
+    begin
+      NewNSArray[i]:= NewNS mod OldNS;
+      NewNS:= NewNS div OldNS;
+      i:= i + 1;
+    end;
+
+    //At the end there is a remainder, which will be the last element. Setting the length
+    NewNSArray[i]:= NewNS;
+    SetLength(NewNSArray, i + 1);
+
+    //Setting the maximum lengths of arrays
+    SetLength(Result, length(Number));
+
+    //Convert number from OldNS to NewNS
+    i:= Low(Result);
+    while (Length(Number) > Length(NewNSArray)) or ((Length(Number) = Length(NewNSArray)) and PartFirstNumIsGreater(Number, NewNSArray, Low(Number))) do
+    begin
+
+      //Dividing the numbers
+      ResDivision:= Division(Number, NewNSArray, OldNS);
+
+      //Write the remainder to the result
+      Result[i]:= GornerConver(ResDivision.Remainder, OldNS);
+
+      //Assign a residual value
+      Number:= ResDivision.Quotient;
+
+      //Modernize i
+      i:= i + 1;
+    end;
+
+    //At the end (when Number < NewNSArray), the remainder will be the last value of the number
+    Result[i]:= GornerConver(Number, OldNS);
+
+  end;
+
+  //Set the length
+  SetLength(Result, i+1);
 end;
 
 
