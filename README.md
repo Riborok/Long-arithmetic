@@ -1,4 +1,4 @@
-# Module for working with integer long numbers in different number systems. 
+# Unit for working with integer long numbers in different number systems. 
 ## As an example, implemented a program for calculating long numbers in different NS
 #### Language: Delphi
 #
@@ -11,7 +11,7 @@
 ## LongArithmetic unit
 #
 
-### Available functions for working with long numbers: input, output, addition, subtraction, multiplication, division, translation from one number system to another.
+### Available functions and procedures for working with long numbers: InputNum, OutputNum, NumbersSum, NumbersDifference, NumbersProduct, NumbersDiv, NumbersMod, NSConvert.
 
 ## Type: 
 #### >TNumber - dynamic array stores the value of a number
