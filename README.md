@@ -1,3 +1,70 @@
+# Module for working with integer long numbers in different number systems. 
+## As an example, implemented a program for calculating long numbers in different NS
+#### Language: Delphi
+#
+[Check LongArithmetic unit](#longarithmetic-unit)
+-
+[Check Long number calculator ](#long-number-calculator)
+-
+---
+
+## LongArithmetic unit
+#
+
+### Available functions for working with long numbers: input, output, addition, subtraction, multiplication, division, translation from one number system to another.
+
+## Type: 
+#### >TNumber - dynamic array stores the value of a number
+#### >TNumberAndSign - record type, stores the value of a number as a TNumber and the sign of the number as a boolean variable
+#### >TDivision - record type, stores the quotient and the remainder as TNumber
+
+#
+
+## Functions and Procedures:
+
+#### 1) Function InputNum(NS: Byte): TNumberAndSign
+#### ⠀⠀The number system NS is passed to the function, in which the number should be
+#### ⠀⠀written. A TNumberAndSign type variable is returned (value and sign of the number)
+#### ⠀⠀When entering a number, the correctness of the data is checked. If you need to write
+#### ⠀⠀number not in NS, then enter $(the number system in which the number is written),
+#### ⠀⠀then a space and the number itself.
+
+#### 2) Procedure OutputNum(Number: TNumberAndSign)
+#### ⠀⠀A number of type TNumberAndSign is passed to the procedure. The sign of the number
+#### ⠀⠀and its value are displayed on the screen.
+
+#### 3) Function NumbersSum(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign
+#### ⠀⠀Two numbers of type TNumberAndSign and the number system are passed to the
+#### ⠀⠀function. Returns the sum of type TNumberAndSign.
+
+#### 4) Function NumbersDifference(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign
+#### ⠀⠀Two numbers of type TNumberAndSign and the number system are passed to the 
+#### ⠀⠀function. Returns the difference of type TNumberAndSign.
+
+#### 5) NumbersProduct(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign
+#### ⠀⠀Two numbers of type TNumberAndSign and the number system are passed to the 
+#### ⠀⠀function. Returns the product of type TNumberAndSign.
+
+#### 6) Function NumbersDiv(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign
+#### ⠀⠀Two numbers of type TNumberAndSign and the number system are passed to the 
+#### ⠀⠀function. Returns the incomplete quotient of the division of type TNumberAndSign.
+#### ⠀⠀Division by zero is not provided in the unit!
+
+#### 7) Function NumbersMod(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign
+#### ⠀⠀Two numbers of type TNumberAndSign and the number system are passed to the
+#### ⠀⠀function. Returns the remainder of the division of type TNumberAndSign. 
+#### ⠀⠀Division by zero is not provided in the unit!
+
+#### 8) Function NSConvert(Number: TNumber; OldNS, NewNS: Byte): TNumber
+#### ⠀⠀A number of type TNumber, number system OldNS (in which the number  
+#### ⠀⠀resides) and number system NewNS (to which the number is to be converted) are  
+#### ⠀⠀passed to the function. Returns the number of type TNumber in the number system
+#### ⠀⠀NewNS.
+#
+
+
+### Code for LongArithmetic unit:
+``` pascal
 unit LongArithmetic;
 {
  Long numbers calculator in different number systems.
@@ -262,7 +329,7 @@ Var
   //i - cycle counter
   //Len - length for Result
   //DigitsSum - sum of digits
-  //Carry - �arry to the next element
+  //Carry - сarry to the next element
 begin
 
   //Finds the largest size (length for Result)
@@ -343,7 +410,7 @@ Var
   DigitsDifference, Carry: ShortInt;
   //i, j - cycle counter
   //DigitsDifference - the difference of digits
-  //Carry - �arry to the next element
+  //Carry - сarry to the next element
 begin
 
   //The length of the reduced and the subtrahend must be the same
@@ -452,7 +519,7 @@ var
   //i, j - cycle counter
   //PosElement - the current position of the element in the multiplication
   //DigigtsProd - product of the digits of the first and second number
-  //CarryProd - �arry the digit (if there is) to the next element (for DigigtsProd)
+  //CarryProd - сarry the digit (if there is) to the next element (for DigigtsProd)
 begin
 
   //Set the lengths
@@ -471,7 +538,7 @@ begin
     for j := Low(FirstMultiplier) to High(FirstMultiplier) do
     begin
 
-      //�alculate at what position in the multiplication the element now
+      //Сalculate at what position in the multiplication the element now
       PosElement:= j + i;
 
       //Starting to multiply the last digits of the numbers (in the mirrored view it is first)
@@ -591,7 +658,7 @@ begin
     Result.Quotient[CurrElInQuotient]:= ResultDiv;
   end;
 
-  //�ount the final length of the quotient (�onsidering division method)
+  //Сount the final length of the quotient (сonsidering division method)
   CurrElInQuotient:= CurrElInQuotient + CurrPosInDividend + 1;
 
   //If initially the divisor was greater than the dividend, set the length of the quotient 1
@@ -635,7 +702,7 @@ end;
 Function NumbersMod(FirstNum, SecondNum: TNumberAndSign; NS: Byte): TNumberAndSign;
 begin
 
-  //�heck: number1 mod number2 will be equal to some remainder if number1 is greater than number2
+  //Сheck: number1 mod number2 will be equal to some remainder if number1 is greater than number2
   if (Length(FirstNum.Number) > Length(SecondNum.Number)) or
       ((Length(FirstNum.Number) = Length(SecondNum.Number))
       and PartFirstNumIsGreater(FirstNum.Number, SecondNum.Number, Low(FirstNum.Number))) then
@@ -789,7 +856,202 @@ begin
   SetLength(ResDivision.Remainder, 0);
 end;
 
-
-
-
 end.
+```
+
+---
+
+## Long number calculator 
+#
+
+### Available opretors: +, -, *, div, mod (calculations occur in the base number system NS). To change the base number system NS enter ~$. To get an answer enter =. To complete the process enter !
+
+### Entered numbers must correspond to the base number system NS. If need to write number not in the base number system, then enter $(the number system in which the number is written), then a space and the number itself. 
+#
+
+### Code for long number calculator: 
+``` pascal
+Program LongNumberCalculator;
+{Long number calculator}
+
+{$APPTYPE CONSOLE}
+
+uses
+  System.SysUtils,
+  LongArithmetic in '..\Units\LongArithmetic.pas';
+
+Var
+  Num1, Num2: TNumberAndSign;
+  ChosenOperator : String;
+  OldNS, BaseNS: Byte;
+  flag: boolean;
+  //Num1 - array of digits of the first number (further the result of the two previous numbers)
+  //Num2 - array of digits of the second numbers
+  //Operation - the chosen operation
+  //BaseNS - base number system
+  //OldNS - previous base number system
+  //flag - flag to confirm the correctness of entering numbers
+
+
+
+Function InputNS: Byte;
+Var
+  i: Byte;
+  IsCorrect: Boolean;
+Begin
+  //Cycle with postcondition for entering correct data.
+  Repeat
+
+    //Initialize the IsCorrect
+    IsCorrect:= True;
+
+    //Validating the correct input data type
+    Try
+      Readln(Result);
+    Except
+      Writeln('Wrong input of number system! It must be an integer. Try again');
+      IsCorrect:= False;
+    End;
+
+    //Validate Range
+    if ((Result > Length(NSAlphabet)) or (Result < 2)) and IsCorrect then
+    begin
+      Writeln('Wrong input of number system! It must be >=2 and <=',Length(NSAlphabet),'. Try again');
+      IsCorrect:= False;
+    end;
+
+  Until IsCorrect;
+
+  //Declaring available symbols and their value
+  Writeln;
+  Writeln('Available symbols on the ',Result,'th number system and their number system:');
+  for i := 0 to Result - 1 do
+    Writeln('Symbol ', NSAlphabet[i+1],' Value = ',i);
+  Writeln;
+  if Result <> High(NSAlphabet) then
+  begin
+    Writeln('Other characters up to the ',High(NSAlphabet),'th system');
+    for i := Result to High(NSAlphabet) - 1 do
+      Writeln('Symbol ', NSAlphabet[i+1],' Value = ',i);
+    Writeln;
+  end;
+End;
+
+
+
+Begin
+
+  Writeln('Welcome to long arithmetic. Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).');
+  Writeln('To change the base number system NS enter ~$. To get an answer enter =. To complete the process enter !');
+  Writeln('Warning! Numbers must be integers');
+  Writeln;
+
+  Writeln('Enter the base number system (which will be used for calculations and to output the result). Minimal is 2, maximum number system is ',Length(NSAlphabet));
+  Writeln('If you want to change the base number system, then when entering the operator, enter ~$. (The answer will also be converted into the new base number system)');
+
+  //Input number system
+  BaseNS:= InputNS;
+  Writeln('If you need to write number not in the base number system, then enter $(the number system in which the number is written), then a space and the number itself.');
+  Writeln('For example: $2 1101');
+  Writeln;
+
+  //Entering the first number (it is initially positive)
+  //(further this number will store the result of operations)
+  Num1:= InputNum(BaseNS);
+
+  //Do operations until '!'
+  repeat
+
+    //Cycle with postcondition for entering correct data.
+    repeat
+      Readln(ChosenOperator);
+      ChosenOperator:= AnsiLowerCase(ChosenOperator);
+      flag:= False;
+
+      //If the first number is positive, then add the two numbers.
+      //Else subtract the first from the second number
+      if ChosenOperator = '+' then
+      begin
+        Num2:= InputNum(BaseNS);
+        Num1:= NumbersSum(Num1, Num2, BaseNS)
+      end
+
+      //If the first number is positive, then subtract the second from the first.
+      //Else add two numbers (the sign of the result will remain -)
+      else if ChosenOperator = '-' then
+      begin
+        Num2:= InputNum(BaseNS);
+        Num1:= NumbersDifference(Num1, Num2, BaseNS)
+      end
+
+      //Multiplying two numbers
+      else if ChosenOperator = '*' then
+      begin
+        Num2:= InputNum(BaseNS);
+        Num1:= NumbersProduct(Num1, Num2, BaseNS);
+      end
+
+      //Find the integer quotient after division (check not to divide by 0)
+      else if ChosenOperator = 'div' then
+      begin
+        Num2:= InputNum(BaseNS);
+        if Num2.Number[High(Num2.Number)] = 0 then
+        begin
+          flag:= True;
+          Writeln('Cant divide by zero! Enter operator and number again');
+        end
+        else
+          Num1:= NumbersDiv(Num1, Num2, BaseNS);
+      end
+
+      //Find the remainder after division (check not to divide by 0)
+      else if ChosenOperator = 'mod' then
+      begin
+        Num2:= InputNum(BaseNS);
+        if Num2.Number[High(Num2.Number)] = 0 then
+        begin
+          flag:= True;
+          Writeln('Cant divide by zero! Enter operator and number again');
+        end
+        else
+          Num1:= NumbersMod(Num1, Num2, BaseNS);
+      end
+
+      //Write out the current result
+      else if ChosenOperator = '=' then
+      begin
+        OutputNum(Num1);
+        Writeln;
+      end
+
+      //Change base number system
+      else if ChosenOperator = '~$' then
+      begin
+        OldNS:= BaseNS;
+        Writeln('Enter a new base number system');
+        BaseNS:= InputNS;
+        if OldNS <> BaseNS then
+          Num1.Number:= NSConvert(Num1.Number, OldNS, BaseNS);
+      end
+
+      //Invalid input
+      else if ChosenOperator <> '!' then
+      begin
+        flag:= True;
+        Writeln('Invalid operator entered. Try again');
+      end;
+
+    until not flag;
+
+  until ChosenOperator = '!' ;
+
+  //Delete the used arrays
+  SetLength(Num1.Number, 0);
+  SetLength(Num2.Number, 0);
+  SetLength(ChosenOperator, 0);
+
+  Writeln('Process completed');
+
+  Readln;
+End.
+```

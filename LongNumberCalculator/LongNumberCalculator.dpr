@@ -68,15 +68,17 @@ End;
 
 Begin
 
-  Writeln('Welcome to long arithmetic. Available opretors: +, -, *, div, mod. When you want to get an answer enter =. To change the base number system, enter ~$. To complete the process, enter !');
+  Writeln('Welcome to long arithmetic. Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).');
+  Writeln('To change the base number system NS enter ~$. To get an answer enter =. To complete the process enter !');
   Writeln('Warning! Numbers must be integers');
   Writeln;
 
   Writeln('Enter the base number system (which will be used for calculations and to output the result). Minimal is 2, maximum number system is ',Length(NSAlphabet));
   Writeln('If you want to change the base number system, then when entering the operator, enter ~$. (The answer will also be converted into the new base number system)');
+
   //Input number system
   BaseNS:= InputNS;
-  Writeln('If you are entering a number that is not in the base number system, enter this: < $(the number system in which the number is written) number >');
+  Writeln('If you need to write number not in the base number system, then enter $(the number system in which the number is written), then a space and the number itself.');
   Writeln('For example: $2 1101');
   Writeln;
 
@@ -155,7 +157,8 @@ Begin
         OldNS:= BaseNS;
         Writeln('Enter a new base number system');
         BaseNS:= InputNS;
-        Num1.Number:= NSConvert(Num1.Number, OldNS, BaseNS);
+        if OldNS <> BaseNS then
+          Num1.Number:= NSConvert(Num1.Number, OldNS, BaseNS);
       end
 
       //Invalid input
