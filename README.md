@@ -789,16 +789,8 @@ begin
       i:= i + 1;
     end;
 
-    //If initially the number is less than NewNSArray, then the result will be the initial number.
-    if i = 0 then
-    begin
-      i:= High(Number);
-      Result:= Number;
-    end
-
     //At the end (when Number < NewNSArray), the remainder will be the last value of the number
-    else
-      Result[i]:= Number[0];
+    Result[i]:= Number[0];
 
   end
   else
