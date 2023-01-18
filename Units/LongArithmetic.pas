@@ -538,11 +538,9 @@ end;
 Function Division(Dividend, Divider: TNumber; NS: Byte): TDivision;
 var
   CurrElInQuotient, CurrPosInDividend, i: LongInt;
-  ResultDiv : Byte;
   //CurrElInQuotient - the current element in the quotient
   //CurrPosInDividend - current position in the dividend (CurrPosInDividend..High(Dividend) - part of the dividend which will divide)
   //i - cycle counter
-  //ResultDiv - the result of dividing a part of the dividend
 begin
 
   //Set approximate length for Quotient
@@ -569,12 +567,11 @@ begin
     CurrPosInDividend:= CurrPosInDividend - 1;
 
     //Initialize the variables
-    CurrElInQuotient:= CurrElInQuotient+1;
-    ResultDiv:= 0;
+    CurrElInQuotient:= CurrElInQuotient + 1;
 
     //If the current position in the dividend is the last element and that last element is 0, decrease the length by one
     if (CurrPosInDividend = High(Dividend)) and (Dividend[High(Dividend)] = 0) then
-      SetLength(Dividend, length(Dividend)-1)
+      SetLength(Dividend, length(Dividend) - 1)
 
     //Else while the part of the dividend is greater than the divisor, find the result of the division
     else
@@ -584,11 +581,9 @@ begin
       begin
         //Subtract find the result
         Dividend:= Minus(Dividend, Divider, CurrPosInDividend, NS);
-        ResultDiv:= ResultDiv + 1;
+        Result.Quotient[CurrElInQuotient]:= Result.Quotient[CurrElInQuotient] + 1;
       end;
 
-    //Write the result of the current element in quotient
-    Result.Quotient[CurrElInQuotient]:= ResultDiv;
   end;
 
   //Ñount the final length of the quotient (ñonsidering division method)
