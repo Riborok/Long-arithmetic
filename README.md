@@ -851,7 +851,7 @@ end.
 ## Long number calculator 
 #
 
-### Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).
+### Available operators: +, -, *, div, mod (calculations occur in the base number system NS).
 ### To change the base number system NS enter ~$. To reset the answer enter clr. To get the answer enter =. To complete the process enter !
 
 ### Entered numbers must correspond to the base number system NS. If need to write number not in the base number system, then enter $(the number system in which the number is written), then a space and the number itself. 
@@ -929,7 +929,7 @@ End;
 
 Begin
 
-  Writeln('Welcome to long arithmetic. Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).');
+  Writeln('Welcome to the long arithmetic. Available operators: +, -, *, div, mod (calculations occur in the base number system NS).');
   Writeln('To change the base number system NS enter ~$. To reset the answer enter clr. To get the answer enter =. To complete the process enter !');
   Writeln('Warning! Numbers must be integers');
   Writeln;

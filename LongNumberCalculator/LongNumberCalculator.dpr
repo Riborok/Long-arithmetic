@@ -68,7 +68,7 @@ End;
 
 Begin
 
-  Writeln('Welcome to long arithmetic. Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).');
+  Writeln('Welcome to the long arithmetic. Available operators: +, -, *, div, mod (calculations occur in the base number system NS).');
   Writeln('To change the base number system NS enter ~$. To reset the answer enter clr. To get the answer enter =. To complete the process enter !');
   Writeln('Warning! Numbers must be integers');
   Writeln;
