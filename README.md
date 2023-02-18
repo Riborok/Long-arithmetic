@@ -851,7 +851,8 @@ end.
 ## Long number calculator 
 #
 
-### Available opretors: +, -, *, div, mod (calculations occur in the base number system NS). To change the base number system NS enter ~$. To get an answer enter =. To complete the process enter !
+### Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).
+### To change the base number system NS enter ~$. To reset the answer enter clr. To get the answer enter =. To complete the process enter !
 
 ### Entered numbers must correspond to the base number system NS. If need to write number not in the base number system, then enter $(the number system in which the number is written), then a space and the number itself. 
 #
@@ -929,7 +930,7 @@ End;
 Begin
 
   Writeln('Welcome to long arithmetic. Available opretors: +, -, *, div, mod (calculations occur in the base number system NS).');
-  Writeln('To change the base number system NS enter ~$. To get an answer enter =. To complete the process enter !');
+  Writeln('To change the base number system NS enter ~$. To reset the answer enter clr. To get the answer enter =. To complete the process enter !');
   Writeln('Warning! Numbers must be integers');
   Writeln;
 
@@ -1019,6 +1020,14 @@ Begin
         BaseNS:= InputNS;
         if OldNS <> BaseNS then
           Num1.Number:= NSConvert(Num1.Number, OldNS, BaseNS);
+      end
+
+      //Resetting the answer
+      else if ChosenOperator = 'clr' then
+      begin
+        SetLength(Num1.Number, 1);
+        Num1.Number[0]:= 0;
+        Num1.isPositive:= True;
       end
 
       //Invalid input
